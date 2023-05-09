@@ -1,3 +1,10 @@
+# Installing the relevant software 
+
+
+Please be sure to run npm install to instal all the relevant packages. Most of what you need is there already, but you will additionally need to install express and supertest.
+
+
+
 # Connecting to the Databases
 
 In order to connect to the two databases locally, you will need to create two .env files:
