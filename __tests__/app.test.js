@@ -57,3 +57,40 @@ describe("GET /api", () => {
   });
   
 
+  describe("GET /api/reviews/:review_id", () => {
+    test("status:200, responds with the specific requested review as an object, containing the appropriate properties", () => {
+      return request(app)
+      .get("/api/reviews/1")
+      .expect(200)
+      .then((response) => {
+        const expectedReview = {
+            review_id: 1,
+            title: 'Agricola',
+            category: 'euro game',
+            designer: 'Uwe Rosenberg',
+            owner: 'mallionaire',
+            review_body: 'Farmyard fun!',
+            review_img_url: 'https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700',
+            created_at: '2021-01-18T10:00:20.514Z',
+            votes: 1
+          }
+        expect(response.body.review).toEqual(expectedReview)
+      })  
+      });
+      test("status:404 if review_id does not currently exist in the database", () => {
+        return request(app)
+        .get("/api/reviews/400009")
+        .expect(404)
+        .then((response) => {
+            expect(response.body.message).toBe("selected review not found!");
+            });
+      });
+      test("status: 400 when requested review_id is not an integer", () => {
+      return request(app)
+        .get("/api/reviews/notAnInteger")
+        .expect(400)
+        .then((response) => {
+          expect(response.body.message).toBe("bad request!");
+        });
+    });
+})
