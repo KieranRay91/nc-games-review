@@ -1,9 +1,10 @@
 const request = require("supertest");
 const app = require("../app/app");
-
+const fs = require("fs/promises");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
 const db = require("../db/connection");
+const endpoints = require("../endpoints.json")
 
 
 beforeEach(() => {
@@ -50,11 +51,7 @@ describe("GET /api", () => {
       .expect(200)
       .then((response) => {
         expect(typeof response.body).toBe('object');
-        const expectedObject = {
-            "GET /api": expect.any(Object),
-            "GET /api/categories": expect.any(Object)
-        }
-        expect(response.body).toEqual(expectedObject)
+        expect(response.body).toStrictEqual(endpoints)
       })
     });
   });
