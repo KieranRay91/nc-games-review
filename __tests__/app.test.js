@@ -42,3 +42,21 @@ describe('/api/categories', () => {
         })
     });
 });
+
+describe("GET /api", () => {
+    test("status:200 responds with an object containing all current endpoints", () => {
+      return request(app)
+      .get("/api")
+      .expect(200)
+      .then((response) => {
+        expect(typeof response.body).toBe('object');
+        const expectedObject = {
+            "GET /api": expect.any(Object),
+            "GET /api/categories": expect.any(Object)
+        }
+        expect(response.body).toEqual(expectedObject)
+      })
+    });
+  });
+  
+

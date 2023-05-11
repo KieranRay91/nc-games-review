@@ -1,4 +1,4 @@
-const { fetchCategories } =  require('./models');
+const { fetchCategories, fetchEndpoints } =  require('./models');
 
 
 exports.getCategories = (request, response, next) => {
@@ -7,3 +7,11 @@ fetchCategories().then((categories) => {
 }).catch(next)
 
 }
+
+exports.getEndpoints = (request, response, next) => {
+    fetchEndpoints().then((result) => {
+        response.send(result)
+    }).catch(next)
+};
+
+
