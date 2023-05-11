@@ -63,12 +63,18 @@ describe("GET /api", () => {
       .get("/api/reviews/1")
       .expect(200)
       .then((response) => {
-        const objectKeys = Object.keys(response.body.review);
-        const requiredKeys = ['review_id', 'title', 'review_body', 'designer', 'review_img_url', 'votes', 'category', 'owner', 'created_at']
-        const checkAllKeysExist = requiredKeys.every(key => {
-            return objectKeys.includes(key);
-          });
-        expect(checkAllKeysExist).toBe(true)
+        const expectedReview = {
+            review_id: 1,
+            title: 'Agricola',
+            category: 'euro game',
+            designer: 'Uwe Rosenberg',
+            owner: 'mallionaire',
+            review_body: 'Farmyard fun!',
+            review_img_url: 'https://images.pexels.com/photos/974314/pexels-photo-974314.jpeg?w=700&h=700',
+            created_at: '2021-01-18T10:00:20.514Z',
+            votes: 1
+          }
+        expect(response.body.review).toEqual(expectedReview)
       })  
       });
       test("status:404 if review_id does not currently exist in the database", () => {
