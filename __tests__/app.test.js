@@ -1,9 +1,10 @@
 const request = require("supertest");
 const app = require("../app/app");
-
+const fs = require("fs/promises");
 const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
 const db = require("../db/connection");
+const endpoints = require("../endpoints.json")
 
 
 beforeEach(() => {
@@ -42,3 +43,17 @@ describe('/api/categories', () => {
         })
     });
 });
+
+describe("GET /api", () => {
+    test("status:200 responds with an object containing all current endpoints", () => {
+      return request(app)
+      .get("/api")
+      .expect(200)
+      .then((response) => {
+        expect(typeof response.body).toBe('object');
+        expect(response.body).toStrictEqual(endpoints)
+      })
+    });
+  });
+  
+
