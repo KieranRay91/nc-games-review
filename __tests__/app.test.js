@@ -96,12 +96,11 @@ describe("GET /api", () => {
 })
 
 describe("GET /api/reviews", () => {
-    test.only("status:200, responds with an array of all the review objects with the correct properties, sorted in descending order", () => {
+    test("status:200, responds with an array of all the review objects with the correct properties, sorted in descending order", () => {
         return request(app)
         .get("/api/reviews")
         .expect(200)
         .then((response) => {
-            console.log(response.body.reviews)
             response.body.reviews.forEach((review) => {
                 expect(typeof review.owner).toBe('string');
                 expect(typeof review.title).toBe('string');
