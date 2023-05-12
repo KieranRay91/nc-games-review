@@ -96,7 +96,7 @@ describe("GET /api", () => {
 })
 
 describe("GET /api/reviews", () => {
-    test("status:200, responds with an array containing all the review objects which have the correct properties sorted in descending order", () => {
+    test("status:200, responds with an array containing all the review objects which have the correct properties", () => {
         return request(app)
         .get("/api/reviews")
         .expect(200)
