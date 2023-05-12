@@ -21,5 +21,3 @@ exports.formatComments = (comments, idLookup) => {
 	});
 };
 
-
-

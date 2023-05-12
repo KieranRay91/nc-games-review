@@ -5,7 +5,7 @@ const seed = require("../db/seeds/seed");
 const testData = require("../db/data/test-data");
 const db = require("../db/connection");
 const endpoints = require("../endpoints.json")
-
+require("jest-sorted");
 
 beforeEach(() => {
   return seed(testData);
@@ -94,3 +94,54 @@ describe("GET /api", () => {
         });
     });
 })
+
+describe("GET /api/reviews", () => {
+    test("status:200, responds with an array containing all the review objects which have the correct properties", () => {
+        return request(app)
+        .get("/api/reviews")
+        .expect(200)
+        .then((response) => {
+            response.body.reviews.forEach((review) => {
+                expect(typeof review.owner).toBe('string');
+                expect(typeof review.title).toBe('string');
+                expect(typeof review.review_id).toBe('number');
+                expect(typeof review.category).toBe('string');
+                expect(typeof review.review_img_url).toBe('string');
+                expect(typeof review.created_at).toBe('string');
+                expect(typeof review.votes).toBe('number');
+                expect(typeof review.designer).toBe('string');
+                expect(typeof review.comment_count).toBe('string');
+            })
+        expect(response.body.reviews.length).toBe(13)
+        })
+    })
+    test("status:200, response objects are sorted in descending order", () => {
+        return request(app)
+        .get("/api/reviews")
+        .expect(200)
+        .then((response) => {
+        expect(response.body.reviews).toBeSortedBy('created_at', {descending: true})
+        })
+    })
+    test("response objects do not contain a review_body property that is present in each object in the reviews data", () => {
+        return request(app)
+        .get("/api/reviews")
+        .expect(200)
+        .then((response) => {
+            response.body.reviews.forEach((review) => {
+                expect(review.hasOwnProperty('review_body')).toBe(false)
+            })
+        })
+    })
+    test("status: 400 when requested path is not an valid and responds with an object with a message advising the client they have a miss-type", () => {
+        return request(app)
+          .get("/api/reviesdw")
+          .expect(404)
+          .then((response) => {
+            expect(response.body.message).toBe("Invalid syntax in URL");
+          });
+      });
+})
+
+
+
