@@ -96,7 +96,7 @@ describe("GET /api", () => {
 })
 
 describe("GET /api/reviews", () => {
-    test("status:200, responds with an array of all the review objects with the correct properties, sorted in descending order", () => {
+    test("status:200, responds with an array containing all the review objects which have the correct properties sorted in descending order", () => {
         return request(app)
         .get("/api/reviews")
         .expect(200)
@@ -112,6 +112,14 @@ describe("GET /api/reviews", () => {
                 expect(typeof review.designer).toBe('string');
                 expect(typeof review.comment_count).toBe('string');
             })
+        expect(response.body.reviews.length).toBe(13)
+        })
+    })
+    test("status:200, response objects are sorted in descending order", () => {
+        return request(app)
+        .get("/api/reviews")
+        .expect(200)
+        .then((response) => {
         expect(response.body.reviews).toBeSortedBy('created_at', {descending: true})
         })
     })
