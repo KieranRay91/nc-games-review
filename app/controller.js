@@ -1,4 +1,4 @@
-const { fetchCategories, fetchReviewById } =  require('./models');
+const { fetchCategories, fetchReviewById, fetchAllReviews } =  require('./models');
 const fs = require("fs/promises");
 
 exports.getCategories = (request, response, next) => {
@@ -22,4 +22,10 @@ exports.getReviewById = (request, response, next) => {
         const requestedReview = review[0]
         response.status(200).send(({ review: requestedReview }))
     }).catch(next)
+};
+
+exports.getAllUpdatedReviews = (request, response, next) => {
+fetchAllReviews().then((reviews) => {
+    response.status(200).send({ reviews: reviews})
+}).catch(next)
 };

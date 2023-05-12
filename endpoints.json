@@ -32,5 +32,46 @@
         }
       ]
     }
+  },
+  "GET /api/reviews": {
+    "description": "responds with aan array of all review objects, sorted by date in descending order with the review_body proprty removed and an additional comment_count property which totals the number of corresponding comments",
+    "queries": [],
+    "exampleResponse": {
+      "reviews": [
+        {
+          "owner": "mallionaire",
+          "title": "Mollit elit qui incididunt veniam occaecat cupidatat",
+          "review_id": 7,
+          "category": "social deduction",
+          "review_img_url": "https://images.pexels.com/photos/776657/pexels-photo-776657.jpeg?w=700&h=700",
+          "created_at": "2021-01-25T11:16:54.963Z",
+          "votes": 9,
+          "designer": "Avery Wunzboogerz",
+          "comment_count": "0"
+        },
+        {
+          "owner": "mallionaire",
+          "title": "Dolor reprehenderit",
+          "review_id": 4,
+          "category": "social deduction",
+          "review_img_url": "https://images.pexels.com/photos/278918/pexels-photo-278918.jpeg?w=700&h=700",
+          "created_at": "2021-01-22T11:35:50.936Z",
+          "votes": 7,
+          "designer": "Gamey McGameface",
+          "comment_count": "0"
+        },
+        {
+          "owner": "bainesface",
+          "title": "Ultimate Werewolf",
+          "review_id": 3,
+          "category": "social deduction",
+          "review_img_url": "https://images.pexels.com/photos/5350049/pexels-photo-5350049.jpeg?w=700&h=700",
+          "created_at": "2021-01-18T10:01:41.251Z",
+          "votes": 5,
+          "designer": "Akihisa Okui",
+          "comment_count": "3"
+        }
+      ]
+    }
   }
 }
