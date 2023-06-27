@@ -50,7 +50,7 @@ app.use((err, request, response, next) => {
 
 
 app.use((err, request, response, next) => {
-    response.status(500).send({ message: 'Internal Server Error' });
+    response.status(500).send({ message: 'Internal Server Error', error: err});
   });
 
 module.exports = app;

@@ -60,6 +60,7 @@ exports.getCommentsByReviewId = (request, response, next) => {
 exports.postCommentByReviewId = (request, response, next) => {
   const { review_id } = request.params;
   const postedComment = request.body;
+console.log(request.body)
   updateCommentsByReviewId(postedComment, review_id)
     .then((comment) => {
       response.status(201).send({ addedComment: comment });
