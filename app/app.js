@@ -1,6 +1,6 @@
 const cors = require('cors');
 const express = require("express");
-const {getCategories, getEndpoints, getReviewById, getAllUpdatedReviews, getCommentsByReviewId, postCommentByReviewId, updateReviewById } =  require('./controller')
+const {getCategories, getEndpoints, getReviewById, getAllUpdatedReviews, getCommentsByReviewId, postCommentByReviewId, updateReviewById, deleteCommentById, getAllUsers } =  require('./controller')
 const app = express();
 const fs = require("fs/promises");
 
@@ -19,9 +19,13 @@ app.get('/api/reviews', getAllUpdatedReviews)
 
 app.get('/api/reviews/:review_id/comments', getCommentsByReviewId);
 
+app.get('/api/users', getAllUsers)
+
 app.post('/api/reviews/:review_id/comments', postCommentByReviewId)
 
 app.patch('/api/reviews/:review_id', updateReviewById)
+
+app.delete('/api/comments/:comment_id', deleteCommentById)
 
 app.use((request, response) => {
     response.status(404).send({ message: 'Invalid syntax in URL' });

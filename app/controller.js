@@ -5,6 +5,8 @@ const {
   fetchCommentsByReviewId,
   updateCommentsByReviewId,
   updateReviewVotes,
+  removeComment,
+  fetchAllUsers,
 } = require("./models");
 const fs = require("fs/promises");
 
@@ -57,10 +59,18 @@ exports.getCommentsByReviewId = (request, response, next) => {
     .catch(next);
 };
 
+exports.getAllUsers = (request, response, next) => {
+  fetchAllUsers()
+    .then((users) => {
+      response.status(200).send({ users: users });
+    })
+    .catch(next);
+};
+
 exports.postCommentByReviewId = (request, response, next) => {
   const { review_id } = request.params;
   const postedComment = request.body;
-console.log(request.body)
+  console.log(request.body);
   updateCommentsByReviewId(postedComment, review_id)
     .then((comment) => {
       response.status(201).send({ addedComment: comment });
@@ -74,6 +84,15 @@ exports.updateReviewById = (request, response, next) => {
   updateReviewVotes(votesAdjustment, review_id)
     .then((review) => {
       response.status(200).send({ review: review });
+    })
+    .catch(next);
+};
+
+exports.deleteCommentById = (request, response, next) => {
+  const { comment_id } = request.params;
+  removeComment(comment_id)
+    .then((comment) => {
+      response.status(204).send({});
     })
     .catch(next);
 };

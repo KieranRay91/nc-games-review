@@ -54,6 +54,13 @@ exports.fetchCommentsByReviewId = (review_id) => {
     });
 };
 
+exports.fetchAllUsers = () => {
+  return db
+  .query(`SELECT * FROM users;`).then((result) => {
+    return result.rows;
+  });
+};
+
 exports.updateCommentsByReviewId = (postedComment, review_id) => {
   const { username, body } = postedComment;
   if (username && body) {
@@ -62,7 +69,7 @@ exports.updateCommentsByReviewId = (postedComment, review_id) => {
         return db
           .query(
             `INSERT INTO comments
-    (body, author,review_id)
+    (body, author, review_id)
     VALUES ($1, $2, $3)
     RETURNING *;`,
             [body, username, review_id]
@@ -86,20 +93,42 @@ exports.updateCommentsByReviewId = (postedComment, review_id) => {
 };
 
 exports.updateReviewVotes = (votesAdjustment, review_id) => {
-  if(typeof votesAdjustment === 'number') {
+  if (typeof votesAdjustment === "number") {
     return this.fetchReviewById(review_id).then(() => {
-  return db
-    .query(
-      `UPDATE reviews SET votes = votes + $1
+      return db
+        .query(
+          `UPDATE reviews SET votes = votes + $1
  WHERE review_id = $2
  RETURNING *;`,
-      [votesAdjustment, review_id]
-    )
-    .then((review) => {
-      return review.rows[0];
+          [votesAdjustment, review_id]
+        )
+        .then((review) => {
+          return review.rows[0];
+        });
     });
-  });
   } else {
-    return Promise.reject({status:400, msg: 'request must include a inc_votes numerical value'})
+    return Promise.reject({
+      status: 400,
+      msg: "request must include a inc_votes numerical value",
+    });
   }
+};
+
+exports.removeComment = (comment_id) => {
+  return db
+    .query(`SELECT * from comments WHERE comment_id = $1;`, [comment_id])
+    .then((comment) => {
+      if (comment.rows.length === 1) {
+        return db
+          .query(`DELETE from comments WHERE comment_id = $1;`, [comment_id])
+          .then((comment) => {
+            return;
+          });
+      } else {
+        return Promise.reject({
+          status: 400,
+          msg: "request must include a inc_votes numerical value",
+        });
+      }
+    });
 };
