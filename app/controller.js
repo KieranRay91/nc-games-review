@@ -41,7 +41,8 @@ exports.getReviewById = (request, response, next) => {
 };
 
 exports.getAllUpdatedReviews = (request, response, next) => {
-  fetchAllReviews()
+  const { category, sort_by, order } = request.query;
+  fetchAllReviews(category, sort_by, order)
     .then((reviews) => {
       response.status(200).send({ reviews: reviews });
     })
@@ -70,7 +71,6 @@ exports.getAllUsers = (request, response, next) => {
 exports.postCommentByReviewId = (request, response, next) => {
   const { review_id } = request.params;
   const postedComment = request.body;
-  console.log(request.body);
   updateCommentsByReviewId(postedComment, review_id)
     .then((comment) => {
       response.status(201).send({ addedComment: comment });

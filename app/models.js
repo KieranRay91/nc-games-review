@@ -1,5 +1,4 @@
 const db = require("../db/connection");
-const reviews = require("../db/data/test-data/reviews");
 const fs = require("fs/promises");
 
 exports.fetchCategories = () => {
@@ -10,7 +9,16 @@ exports.fetchCategories = () => {
 
 exports.fetchReviewById = (review_id) => {
   return db
-    .query(`SELECT * FROM reviews WHERE review_id = $1`, [review_id])
+    .query(
+      `SELECT reviews.*, 
+    COUNT(comments.comment_id) AS comment_count
+    FROM reviews
+    LEFT JOIN comments ON comments.review_id = reviews.review_id
+    WHERE reviews.review_id = $1
+    GROUP BY reviews.review_id
+    LIMIT 1;`,
+      [review_id]
+    )
     .then((result) => {
       if (result.rows.length === 0) {
         return Promise.reject({
@@ -29,18 +37,52 @@ exports.fetchAllComments = () => {
   });
 };
 
-exports.fetchAllReviews = () => {
-  return db
-    .query(
-      `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, reviews.review_img_url, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) AS comment_count
-    FROM reviews
-    LEFT JOIN comments ON reviews.review_id = comments.review_id
-    GROUP BY reviews.owner, reviews.title, reviews.review_id, reviews.category, reviews.review_img_url, reviews.created_at, reviews.votes, reviews.designer
-    ORDER BY reviews.created_at DESC;`
-    )
-    .then((result) => {
+exports.fetchAllReviews = (
+  category,
+  sort_by = "created_at",
+  order = "desc"
+) => {
+  let queryStr = `SELECT reviews.owner, reviews.title, reviews.review_id, reviews.category, reviews.review_img_url, reviews.created_at, reviews.votes, reviews.designer, COUNT(comments.comment_id) AS comment_count
+  FROM reviews
+  LEFT JOIN comments ON reviews.review_id = comments.review_id`;
+
+  const query = [];
+
+  const validSortCategories = [
+    "owner",
+    "title",
+    "review_id",
+    "category",
+    "review_img_url",
+    "created_at",
+    "votes",
+    "designer",
+    "comment_count",
+  ];
+
+  if (category) {
+    queryStr += ` WHERE reviews.category = $1`;
+    query.push(category);
+  }
+
+  if (!validSortCategories.includes(sort_by)) {
+    return Promise.reject({ status: 400, msg: "Invalid sort query!" });
+  }
+
+  if (!["asc", "desc"].includes(order)) {
+    return Promise.reject({ status: 400, msg: "Invalid order query" });
+  }
+
+  queryStr += ` GROUP BY reviews.owner, reviews.title, reviews.review_id, reviews.category, reviews.review_img_url, reviews.created_at, reviews.votes, reviews.designer 
+  ORDER BY reviews.${sort_by} ${order};`;
+
+  return db.query(queryStr, query).then((result) => {
+    if (!result.rows.length) {
+      return Promise.reject({ status: 400, msg: "Invalid category query" });
+    } else {
       return result.rows;
-    });
+    }
+  });
 };
 
 exports.fetchCommentsByReviewId = (review_id) => {
@@ -55,8 +97,7 @@ exports.fetchCommentsByReviewId = (review_id) => {
 };
 
 exports.fetchAllUsers = () => {
-  return db
-  .query(`SELECT * FROM users;`).then((result) => {
+  return db.query(`SELECT * FROM users;`).then((result) => {
     return result.rows;
   });
 };

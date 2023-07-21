@@ -66,6 +66,7 @@ describe("GET /api/reviews/:review_id", () => {
           review_id: 1,
           title: "Agricola",
           category: "euro game",
+          comment_count: "0",
           designer: "Uwe Rosenberg",
           owner: "mallionaire",
           review_body: "Farmyard fun!",
@@ -229,7 +230,9 @@ describe("POST /api/reviews/:review_id/comments", () => {
       .send(newComment)
       .expect(400)
       .then((response) => {
-        expect(response.body.message).toBe("missing a property on posted object");
+        expect(response.body.message).toBe(
+          "missing a property on posted object"
+        );
       });
   });
   test("POST status:400, responds with error message when posted comment does not conform to required data types", async () => {
@@ -277,7 +280,7 @@ describe("POST /api/reviews/:review_id/comments", () => {
   });
 });
 
-describe.only(" PATCH /api/reviews/:review_id", () => {
+describe(" PATCH /api/reviews/:review_id", () => {
   test("status:200, increases the votes property accordingly for the selected review and responds with the entire object", () => {
     const reviewUpdate = {
       inc_votes: 50,
@@ -298,7 +301,27 @@ describe.only(" PATCH /api/reviews/:review_id", () => {
         expect(typeof review.votes).toBe("number");
         expect(typeof review.designer).toBe("string");
       });
-      ////decreses votes test
+  });
+  test("status:200, decreases the votes property accordingly for the selected review and responds with the entire object", () => {
+    const reviewUpdate = {
+      inc_votes: -50,
+    };
+    return request(app)
+      .patch("/api/reviews/1")
+      .send(reviewUpdate)
+      .expect(200)
+      .then((response) => {
+        expect(response.body.review.votes).toBe(-49);
+        const review = response.body.review;
+        expect(typeof review.owner).toBe("string");
+        expect(typeof review.title).toBe("string");
+        expect(typeof review.review_id).toBe("number");
+        expect(typeof review.category).toBe("string");
+        expect(typeof review.review_img_url).toBe("string");
+        expect(typeof review.created_at).toBe("string");
+        expect(typeof review.votes).toBe("number");
+        expect(typeof review.designer).toBe("string");
+      });
   });
   test("status:400, responds with appropriate error message when no inc_votes on request body", () => {
     const reviewUpdate = {};
@@ -308,7 +331,7 @@ describe.only(" PATCH /api/reviews/:review_id", () => {
       .expect(400)
       .then((response) => {
         expect(response.body.message).toBe(
-          'request must include a inc_votes numerical value'
+          "request must include a inc_votes numerical value"
         );
       });
   });
@@ -322,7 +345,7 @@ describe.only(" PATCH /api/reviews/:review_id", () => {
       .expect(400)
       .then((response) => {
         expect(response.body.message).toBe(
-          'request must include a inc_votes numerical value'
+          "request must include a inc_votes numerical value"
         );
       });
   });
@@ -334,7 +357,7 @@ describe.only(" PATCH /api/reviews/:review_id", () => {
       .patch("/api/reviews/39")
       .send(reviewUpdate)
       .expect(404)
-      .then((response) => { ///destucture respone object?
+      .then((response) => {
         expect(response.body.message).toBe("selected review does not exist!");
       });
   });
@@ -350,6 +373,90 @@ describe.only(" PATCH /api/reviews/:review_id", () => {
         expect(response.body.message).toBe(
           "requested id is not a valid integer"
         );
+      });
+  });
+});
+
+describe("DELETE /api/comments/:comment_id", () => {
+  test("responds with a status 204", () => {
+    return request(app).delete("/api/comments/2").expect(204);
+  });
+  test("responds with only a status 400 if comment does not exist", () => {
+    return request(app).delete("/api/comments/400").expect(400);
+  });
+});
+
+describe("GET /api/users", () => {
+  test("status:200, responds with an array containing all the review objects which have the correct properties", () => {
+    return request(app)
+      .get("/api/users")
+      .expect(200)
+      .then((response) => {
+        response.body.users.forEach((users) => {
+          expect(typeof users.username).toBe("string");
+          expect(typeof users.name).toBe("string");
+          expect(typeof users.avatar_url).toBe("string");
+          expect(response.body.users.length).toBe(4);
+        });
+      });
+  });
+});
+
+describe("GET /api/articles?:queries", () => {
+  test("200: returns the reviews for a chosen category", () => {
+    return request(app)
+      .get("/api/reviews?category=dexterity")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.reviews.length).toBe(1);
+        expect(response.body.reviews[0]).toHaveProperty(
+          "category",
+          "dexterity"
+        );
+      });
+  });
+  test("200: if not specified reviews are sorted by date in descending order", () => {
+    return request(app)
+      .get("/api/reviews?category=social deduction")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.reviews).toBeSortedBy("created_at", {
+          descending: true,
+        });
+      });
+  });
+  test("200: if specified, results are sorted by chosen property in chosen order", () => {
+    return request(app)
+      .get("/api/reviews?category=social deduction&sort_by=votes&order=asc")
+      .expect(200)
+      .then((response) => {
+        expect(response.body.reviews).toBeSortedBy("votes", {
+          descending: false,
+        });
+      });
+  });
+  test("status: 400, rejects invalid category", () => {
+    return request(app)
+      .get("/api/reviews?category=RPG")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.message).toBe("Invalid category query");
+      });
+  });
+  test("status: 400, rejects invalid fields", () => {
+    return request(app)
+      .get("/api/reviews?category=social deduction&sort_by=rectangle")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.message).toBe("Invalid sort query!");
+      });
+  });
+  test("status: 400, rejects invalid sort order", () => {
+    return request(app)
+      .get("/api/reviews?category=social deduction&sort_by=votes&order=desk")
+      .expect(400)
+      .then((response) => {
+        expect(response.body.message).toBe("Invalid order query");
       });
   });
 });
